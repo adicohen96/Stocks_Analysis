@@ -174,50 +174,7 @@ def main():
     tickers = ['AAPL', 'AMZN','MSFT','TSLA']
     info = api.get_basic_info(tickers)
     print(info)
-
-    # info2 = api.get_market_cap('QQQ')
-    # print(info2)
-
-
-    #market_caps = api.get_market_cap(tickers, requests_per_second=1)
-    #print(api.get_random_headers())
-
-
+    
 
 if __name__ == "__main__":
     main()
-
-
-
-
-    # def fetch_single_market_cap(self, ticker):
-    #     url = f'{self.base_url}/quote/{ticker}/summary?assetclass=stocks'
-    #     headers = self.get_random_headers()
-    #     try:
-    #         response = requests.get(url, headers=headers)
-    #         response.raise_for_status()
-    #         data = response.json()
-    #         market_cap = data.get('data', {}).get('summaryData', {}).get('MarketCap', {}).get('value', 'Not available')
-    #         return market_cap
-    #     except requests.exceptions.HTTPError as http_err:
-    #         print(f"HTTP error occurred: {http_err}")
-    #         return 'Error fetching data'
-    #     except Exception as err:
-    #         print(f"An error occurred: {err}")
-    #         return 'Error fetching data'  
-
-    # def get_market_cap(self, tickers: Union[str, List[str]], requests_per_second: int = 2) -> dict:
-    #     if isinstance(tickers, str):
-    #         tickers = [tickers]
-
-    #     rate_limiter = RateLimiter(requests_per_second=requests_per_second)
-
-    #     market_caps = {}
-    #     for ticker in tickers:
-    #         print(f"Fetching market cap for {ticker}...")
-    #         market_cap = rate_limiter.apply(self.fetch_single_market_cap, ticker)
-    #         market_caps[ticker] = market_cap
-    #         print(f"Market Cap for {ticker}: {market_cap}")
-
-    #     del rate_limiter
-    #     return market_caps
