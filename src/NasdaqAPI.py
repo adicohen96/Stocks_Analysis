@@ -9,16 +9,17 @@ from typing import List, Union
 from datetime import datetime
 import pytz
 
+# Define the number of requests allowed per second and cache file path
 REQUESTS_PER_SECOND = 3
 CACHE_FILE_PATH = '/Users/adic/Desktop/Projects/stock_analysis/src/cache.json'
 HEADERS_PATH = '/Users/adic/Desktop/Projects/stock_analysis/src/headers.json'
 
-
 class NasdaqAPI:
 
-    def __init__(self, headers_file = HEADERS_PATH):
+    def __init__(self, headers_file=HEADERS_PATH):
         self.base_url = 'https://api.nasdaq.com/api'
 
+        # Load headers from file
         if not os.path.exists(headers_file):
             raise FileNotFoundError(f"Headers file not found: {headers_file}")
         with open(headers_file, 'r') as file:
@@ -26,28 +27,27 @@ class NasdaqAPI:
         if not self.headers_list:
             raise ValueError("Headers list is empty. Please provide valid headers.")
 
-            # Load the cache file if it exists
+        # Load cache file if it exists
         if os.path.exists(CACHE_FILE_PATH):
             try:
                 with open(CACHE_FILE_PATH, 'r') as cache_file:
-                    # Attempt to load the cache
                     self.cache = json.load(cache_file)
-                    # Check if the cache is empty
                     if not self.cache:
                         print("Cache file is empty. Initializing empty cache.")
                         self.cache = {}
             except json.JSONDecodeError:
-                # Handle cases where the file is not a valid JSON
                 print("Cache file is not a valid JSON. Initializing empty cache.")
                 self.cache = {}
         else:
             self.cache = {}
 
-    def save_cache(self):
+    def __save_cache(self):
+        """Save the cache to a file."""
         with open(CACHE_FILE_PATH, 'w') as cache_file:
-            json.dump(self.cache, cache_file, indent = 4) 
+            json.dump(self.cache, cache_file, indent=4) 
 
     def __is_cache_valid(self, ticker):
+        """Check if the cache for the given ticker is valid."""
         if ticker not in self.cache:
             return False
         
@@ -71,19 +71,21 @@ class NasdaqAPI:
         
         return False   
 
-    def get_random_headers(self):
+    def __get_random_headers(self):
+        """Get a random set of headers from the headers list."""
         if not self.headers_list:
             raise ValueError("Headers list is empty. Please provide valid headers.")
         return random.choice(self.headers_list)
 
     def _fetch_basic_info(self, tickers: List[str]) -> pd.DataFrame:
+        """Fetch basic information for a list of tickers."""
         def fetch_single_basic_info(ticker):
-
+            """Fetch basic info for a single ticker, with caching."""
             if self.__is_cache_valid(ticker):
                 return self.cache[ticker]
 
             url = f'{self.base_url}/quote/{ticker}/summary?assetclass=stocks'
-            headers = self.get_random_headers()
+            headers = self.__get_random_headers()
             try:
                 response = requests.get(url, headers=headers)
                 response.raise_for_status()
@@ -125,7 +127,8 @@ class NasdaqAPI:
                     'date': datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d')
                 }
 
-        rate_limiter = RateLimiter(requests_per_second = REQUESTS_PER_SECOND)
+        # Apply rate limiting to prevent hitting the API too frequently
+        rate_limiter = RateLimiter(requests_per_second=REQUESTS_PER_SECOND)
         basic_info_list = []
 
         for i, ticker in enumerate(tickers):
@@ -138,43 +141,38 @@ class NasdaqAPI:
             basic_info_list.append(info)  
 
         # Save the cache after fetching data
-        self.save_cache()
+        self.__save_cache()
         del rate_limiter
         return pd.DataFrame(basic_info_list)
 
     def get_basic_info(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Fetch basic information for one or more tickers."""
         if isinstance(tickers, str):
             tickers = [tickers]
         df = self._fetch_basic_info(tickers)
         return df
     
     def get_sector(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Get sector information for one or more tickers."""
         df = self.get_basic_info(tickers)
         return df[['Ticker', 'Sector']]
 
     def get_previous_close(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Get previous close prices for one or more tickers."""
         df = self.get_basic_info(tickers)
         return df[['Ticker', 'PreviousClose']]
 
     def get_market_cap(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Get market capitalization for one or more tickers."""
         df = self.get_basic_info(tickers)
         return df[['Ticker', 'MarketCap']]
 
     def get_exchange(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Get exchange information for one or more tickers."""
         df = self.get_basic_info(tickers)
         return df[['Ticker', 'Exchange']]
 
     def get_industry(self, tickers: Union[str, List[str]]) -> pd.DataFrame:
+        """Get industry information for one or more tickers."""
         df = self.get_basic_info(tickers)
         return df[['Ticker', 'Industry']]
-
-
-def main():
-    api = NasdaqAPI()
-    tickers = ['AAPL', 'AMZN','MSFT','TSLA']
-    info = api.get_basic_info(tickers)
-    print(info)
-    
-
-if __name__ == "__main__":
-    main()
