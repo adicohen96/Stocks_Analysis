@@ -1,0 +1,38 @@
+{
+    "AAPL": {
+        "Ticker": "AAPL",
+        "PreviousClose": "$223.96",
+        "MarketCap": "3,447,254,974,420",
+        "Sector": "Technology",
+        "Industry": "Computer Manufacturing",
+        "Exchange": "NASDAQ-GS",
+        "date": "2024-07-23"
+    },
+    "AMZN": {
+        "Ticker": "AMZN",
+        "PreviousClose": "$182.55",
+        "MarketCap": "1,947,496,254,443",
+        "Sector": "Consumer Discretionary",
+        "Industry": "Catalog/Specialty Distribution",
+        "Exchange": "NASDAQ-GS",
+        "date": "2024-07-23"
+    },
+    "MSFT": {
+        "Ticker": "MSFT",
+        "PreviousClose": "$442.94",
+        "MarketCap": "3,307,599,047,504",
+        "Sector": "Technology",
+        "Industry": "Computer Software: Prepackaged Software",
+        "Exchange": "NASDAQ-GS",
+        "date": "2024-07-23"
+    },
+    "TSLA": {
+        "Ticker": "TSLA",
+        "PreviousClose": "$251.51",
+        "MarketCap": "791,048,536,182",
+        "Sector": "Consumer Discretionary",
+        "Industry": "Auto Manufacturing",
+        "Exchange": "NASDAQ-GS",
+        "date": "2024-07-23"
+    }
+}
